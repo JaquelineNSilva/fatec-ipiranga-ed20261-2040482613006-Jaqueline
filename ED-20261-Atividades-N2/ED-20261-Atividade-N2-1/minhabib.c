@@ -1,38 +1,54 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "minhabib.h"
 
-No* criar_no(int valor) {
-    No* novo = (No*) malloc(sizeof(No));
+/* Função auxiliar interna */
+static void mostrar_nivel(No* raiz, int nivelDesejado, int nivelAtual) {
+    if (raiz == NULL)
+        return;
 
-    novo->valor = valor;
-    novo->esq = NULL;
-    novo->dir = NULL;
+    if (nivelAtual == nivelDesejado)
+        printf("%d ", raiz->valor);
 
-    return novo;
+    mostrar_nivel(raiz->esq, nivelDesejado, nivelAtual + 1);
+    mostrar_nivel(raiz->dir, nivelDesejado, nivelAtual + 1);
 }
 
-No* inserir(No* raiz, int valor) {
-    if (raiz == NULL) {
-        return criar_no(valor);
-    }
+/* Função auxiliar interna */
+static No* buscar_no(No* raiz, int valor) {
+    if (raiz == NULL || raiz->valor == valor)
+        return raiz;
 
-    if (valor < raiz->valor) {
-        raiz->esq = inserir(raiz->esq, valor);
-    } else {
-        raiz->dir = inserir(raiz->dir, valor);
-    }
+    if (valor < raiz->valor)
+        return buscar_no(raiz->esq, valor);
 
-    return raiz;
+    return buscar_no(raiz->dir, valor);
+}
+
+/* Função auxiliar interna */
+static void imprimir_subarvore(No* raiz, int espaco) {
+    if (raiz == NULL)
+        return;
+
+    espaco += 5;
+
+    imprimir_subarvore(raiz->dir, espaco);
+
+    printf("\n");
+
+    for (int i = 5; i < espaco; i++)
+        printf(" ");
+
+    printf("%d\n", raiz->valor);
+
+    imprimir_subarvore(raiz->esq, espaco);
 }
 
 void imprimir_nos_internos(No* raiz) {
     if (raiz == NULL)
         return;
 
-    if (raiz->esq != NULL || raiz->dir != NULL) {
+    if (raiz->esq != NULL || raiz->dir != NULL)
         printf("%d ", raiz->valor);
-    }
 
     imprimir_nos_internos(raiz->esq);
     imprimir_nos_internos(raiz->dir);
@@ -42,9 +58,8 @@ void imprimir_folhas(No* raiz) {
     if (raiz == NULL)
         return;
 
-    if (raiz->esq == NULL && raiz->dir == NULL) {
+    if (raiz->esq == NULL && raiz->dir == NULL)
         printf("%d ", raiz->valor);
-    }
 
     imprimir_folhas(raiz->esq);
     imprimir_folhas(raiz->dir);
@@ -57,10 +72,7 @@ int calcular_altura(No* no) {
     int alturaEsq = calcular_altura(no->esq);
     int alturaDir = calcular_altura(no->dir);
 
-    if (alturaEsq > alturaDir)
-        return alturaEsq + 1;
-    else
-        return alturaDir + 1;
+    return (alturaEsq > alturaDir ? alturaEsq : alturaDir) + 1;
 }
 
 int calcular_profundidade(No* raiz, int valor, int profundidade_atual) {
@@ -70,9 +82,8 @@ int calcular_profundidade(No* raiz, int valor, int profundidade_atual) {
     if (raiz->valor == valor)
         return profundidade_atual;
 
-    if (valor < raiz->valor) {
+    if (valor < raiz->valor)
         return calcular_profundidade(raiz->esq, valor, profundidade_atual + 1);
-    }
 
     return calcular_profundidade(raiz->dir, valor, profundidade_atual + 1);
 }
@@ -84,11 +95,10 @@ void imprimir_ancestrais(No* raiz, int valor) {
     if (raiz->valor == valor)
         return;
 
-    if (valor < raiz->valor) {
+    if (valor < raiz->valor)
         imprimir_ancestrais(raiz->esq, valor);
-    } else {
+    else
         imprimir_ancestrais(raiz->dir, valor);
-    }
 
     printf("%d ", raiz->valor);
 }
@@ -108,28 +118,6 @@ void imprimir_descendentes(No* no) {
     }
 }
 
-No* buscar_no(No* raiz, int valor) {
-    if (raiz == NULL || raiz->valor == valor)
-        return raiz;
-
-    if (valor < raiz->valor)
-        return buscar_no(raiz->esq, valor);
-
-    return buscar_no(raiz->dir, valor);
-}
-
-void mostrar_nivel(No* raiz, int nivelDesejado, int nivelAtual) {
-    if (raiz == NULL)
-        return;
-
-    if (nivelAtual == nivelDesejado) {
-        printf("%d ", raiz->valor);
-    }
-
-    mostrar_nivel(raiz->esq, nivelDesejado, nivelAtual + 1);
-    mostrar_nivel(raiz->dir, nivelDesejado, nivelAtual + 1);
-}
-
 void imprimir_niveis(No* raiz, int nivel_atual) {
     int altura = calcular_altura(raiz);
 
@@ -140,26 +128,12 @@ void imprimir_niveis(No* raiz, int nivel_atual) {
     }
 }
 
-void imprimir_subarvore(No* raiz, int espaco) {
-    if (raiz == NULL)
+void analisar_arvore(No* raiz, int valorBusca) {
+    if (raiz == NULL) {
+        printf("Arvore vazia.\n");
         return;
-
-    espaco += 5;
-
-    imprimir_subarvore(raiz->dir, espaco);
-
-    printf("\n");
-
-    for (int i = 5; i < espaco; i++) {
-        printf(" ");
     }
 
-    printf("%d\n", raiz->valor);
-
-    imprimir_subarvore(raiz->esq, espaco);
-}
-
-void analisar_arvore(No* raiz, int valorBusca) {
     printf("\n=========== Diagnostico Geral ===========\n");
 
     printf("Raiz da arvore: %d\n", raiz->valor);
@@ -207,24 +181,4 @@ void analisar_arvore(No* raiz, int valorBusca) {
 
     printf("\n=========== SubArvore ===========\n");
     imprimir_subarvore(encontrado, 0);
-}
-
-int main() {
-    No* raiz = NULL;
-
-    raiz = inserir(raiz, 50);
-    raiz = inserir(raiz, 30);
-    raiz = inserir(raiz, 70);
-    raiz = inserir(raiz, 20);
-    raiz = inserir(raiz, 40);
-    raiz = inserir(raiz, 60);
-    raiz = inserir(raiz, 80);
-    raiz = inserir(raiz, 10);
-    raiz = inserir(raiz, 25);
-
-    int valorBusca = 30;
-
-    analisar_arvore(raiz, valorBusca);
-
-    return 0;
 }
