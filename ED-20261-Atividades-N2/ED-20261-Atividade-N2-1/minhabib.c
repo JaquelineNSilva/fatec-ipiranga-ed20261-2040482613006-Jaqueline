@@ -1,7 +1,16 @@
 #include <stdio.h>
 #include "minhabib.h"
 
-/* Função auxiliar interna */
+static No* buscar_no(No* raiz, int valor) {
+    if (raiz == NULL || raiz->valor == valor)
+        return raiz;
+
+    if (valor < raiz->valor)
+        return buscar_no(raiz->esq, valor);
+
+    return buscar_no(raiz->dir, valor);
+}
+
 static void mostrar_nivel(No* raiz, int nivelDesejado, int nivelAtual) {
     if (raiz == NULL)
         return;
@@ -13,18 +22,6 @@ static void mostrar_nivel(No* raiz, int nivelDesejado, int nivelAtual) {
     mostrar_nivel(raiz->dir, nivelDesejado, nivelAtual + 1);
 }
 
-/* Função auxiliar interna */
-static No* buscar_no(No* raiz, int valor) {
-    if (raiz == NULL || raiz->valor == valor)
-        return raiz;
-
-    if (valor < raiz->valor)
-        return buscar_no(raiz->esq, valor);
-
-    return buscar_no(raiz->dir, valor);
-}
-
-/* Função auxiliar interna */
 static void imprimir_subarvore(No* raiz, int espaco) {
     if (raiz == NULL)
         return;
@@ -69,10 +66,10 @@ int calcular_altura(No* no) {
     if (no == NULL)
         return -1;
 
-    int alturaEsq = calcular_altura(no->esq);
-    int alturaDir = calcular_altura(no->dir);
+    int esq = calcular_altura(no->esq);
+    int dir = calcular_altura(no->dir);
 
-    return (alturaEsq > alturaDir ? alturaEsq : alturaDir) + 1;
+    return (esq > dir ? esq : dir) + 1;
 }
 
 int calcular_profundidade(No* raiz, int valor, int profundidade_atual) {
@@ -83,9 +80,17 @@ int calcular_profundidade(No* raiz, int valor, int profundidade_atual) {
         return profundidade_atual;
 
     if (valor < raiz->valor)
-        return calcular_profundidade(raiz->esq, valor, profundidade_atual + 1);
+        return calcular_profundidade(
+            raiz->esq,
+            valor,
+            profundidade_atual + 1
+        );
 
-    return calcular_profundidade(raiz->dir, valor, profundidade_atual + 1);
+    return calcular_profundidade(
+        raiz->dir,
+        valor,
+        profundidade_atual + 1
+    );
 }
 
 void imprimir_ancestrais(No* raiz, int valor) {
@@ -121,6 +126,8 @@ void imprimir_descendentes(No* no) {
 void imprimir_niveis(No* raiz, int nivel_atual) {
     int altura = calcular_altura(raiz);
 
+    (void)nivel_atual;
+
     for (int i = 0; i <= altura; i++) {
         printf("Nivel %d: ", i);
         mostrar_nivel(raiz, i, 0);
@@ -134,14 +141,12 @@ void analisar_arvore(No* raiz, int valorBusca) {
         return;
     }
 
-    printf("\n=========== Diagnostico Geral ===========\n");
-
     printf("Raiz da arvore: %d\n", raiz->valor);
 
     printf("\nNos internos: ");
     imprimir_nos_internos(raiz);
 
-    printf("\n\nNos folhas: ");
+    printf("\nNos folhas: ");
     imprimir_folhas(raiz);
 
     printf("\n\nExibicao por niveis:\n");
@@ -150,13 +155,11 @@ void analisar_arvore(No* raiz, int valorBusca) {
     No* encontrado = buscar_no(raiz, valorBusca);
 
     if (encontrado == NULL) {
-        printf("\nValor nao encontrado na arvore.\n");
+        printf("\nValor nao encontrado.\n");
         return;
     }
 
-    printf("\n=========== Diagnostico Especifico ===========\n");
-
-    printf("No buscado: %d\n", encontrado->valor);
+    printf("\nNo buscado: %d\n", encontrado->valor);
 
     int grau = 0;
 
@@ -174,11 +177,11 @@ void analisar_arvore(No* raiz, int valorBusca) {
     printf("\nDescendentes: ");
     imprimir_descendentes(encontrado);
 
-    printf("\nAltura do no: %d\n", calcular_altura(encontrado));
+    printf("\nAltura: %d\n", calcular_altura(encontrado));
 
-    printf("Profundidade do no: %d\n",
+    printf("Profundidade: %d\n",
            calcular_profundidade(raiz, valorBusca, 0));
 
-    printf("\n=========== SubArvore ===========\n");
+    printf("\nSubArvore:\n");
     imprimir_subarvore(encontrado, 0);
 }
